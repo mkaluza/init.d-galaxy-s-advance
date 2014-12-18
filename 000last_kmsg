@@ -1,0 +1,7 @@
+#!/system/bin/sh
+
+set -x
+TS=`date +"%Y%m%d%H%M%S"`
+dir=/data/local/log/last_kmsg
+cat /proc/last_kmsg > $dir/last_kmsg.${TS}
+nice gzip -9 $dir/last_kmsg.${TS}&

@@ -1,0 +1,16 @@
+#!/system/bin/sh
+
+#swapoff /dev/block/zram0
+ 
+#http://forum.xda-developers.com/showthread.php?t=2140597
+#echo 2 >/sys/kernel/fsync/mode
+
+echo 5 > /debug/cpuidle/deepest_state
+#cat /d/cpuidle/stats
+echo 2 > /sys/devices/system/cpu/sched_mc_power_savings 
+
+echo 300000 > /sys/kernel/performance/mmc_arm_khz
+echo 200000 > /sys/kernel/performance/wlan_arm_khz
+
+echo "ARCH_POWER" > /debug/sched_features
+echo "NO_GENTLE_FAIR_SLEEPERS" > /debug/sched_features

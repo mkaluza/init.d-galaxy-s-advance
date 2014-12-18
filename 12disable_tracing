@@ -1,0 +1,14 @@
+#!/system/bin/sh
+
+cd /debug/tracing
+
+echo 0 > tracing_enabled
+echo 0 > tracing_on
+
+#for i in events/*/enable; do
+for i in `find events/ -name enable`; do
+	echo 0 > $i
+done
+
+echo nop > current_tracer
+

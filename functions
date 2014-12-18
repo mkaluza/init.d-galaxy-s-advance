@@ -1,0 +1,89 @@
+gov_base=/sys/devices/system/cpu/cpufreq
+mali_base=/sys/kernel/mali
+mali_module_base=/sys/module/mali/parameters
+
+cpufreq_base=/sys/devices/system/cpu/cpu0/cpufreq
+liveopp_base=/sys/kernel/liveopp
+
+function set_param() {
+	#params:
+	# - module (for messages)
+	# - base_dir
+	# - file_name
+	# - ... contents to write to a file
+	local fname param module
+	module=$1
+	fname=${2}/$3
+	param=$3
+	shift 3
+	
+	if [ ! -f $fname ]; then
+		echo "$module: unknown param: $param"
+		return 1
+	fi
+	if [ -z "$1" ]; then
+		echo "$module: missing value"
+		return 1
+	fi
+	echo "$module ($param): $@"
+	echo $@ > $fname
+}
+
+function set_gov() {
+	curr_gov=$1
+	set_param cpufreq $cpufreq_base scaling_governor $curr_gov
+	gov_path=${gov_base}/${curr_gov}
+}
+
+function mali_set_vape() {
+	echo "Mali: setting Vape at index $1 to $2"
+	echo $1 vape=$2 > ${mali_base}/mali_dvfs_config
+}
+
+function gov_set_param() {
+	set_param gov $gov_path $@
+	return $?
+}
+
+function mali_set_param() {
+	local param
+	param=$1
+	shift
+	set_param mali $mali_base mali_$param $@
+	return $?
+}
+
+function mali_set_module_param() {
+	set_param mali_module $mali_module_base $@
+	return $?
+}
+
+function set_varm() {
+	freq=$1
+	eval freq_file=\$f$freq
+	set_param "Varm @ $freq MHz" $liveopp_base ${freq_file} varm=$2
+}
+
+function set_varm_uv() {
+	freq=$1
+	eval freq_file=\$f$freq
+	set_param "Varm_uv @ $freq MHz" $liveopp_base ${freq_file} varm_uv=$2
+}
+
+function set_vbbx() {
+	freq=$1
+	eval freq_file=\$f$freq
+	set_param "Vbbx @ $freq MHz" $liveopp_base ${freq_file} vbbx=$2
+}
+
+function set_liveopp() {
+	freq=$1
+	eval freq_file=\$f$freq
+	set_param "$2 @ $freq MHz" $liveopp_base ${freq_file} $2=$3
+} 
+
+function set_pll() {
+	freq=$1
+	eval freq_file=\$f$freq
+	set_param varm $liveopp_base ${freq_file} pll=$2
+} 

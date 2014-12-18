@@ -1,0 +1,89 @@
+#!/system/bin/sh
+
+. /data/boot.d/functions
+
+##### change voltage
+
+#undervolt 200 & 400MHz
+#crash @ 0x13
+#mali_set_vape 0 0x17
+mali_set_vape 0 0x18
+#crash @ 0x19
+mali_set_vape 5 0x1c
+#mali_set_vape 5 0x20
+
+#boost freqs
+mali_set_vape 9 0x23
+mali_set_vape 15 0x31
+
+#intermediate freqs
+mali_set_vape 1 0x18
+mali_set_vape 2 0x19
+mali_set_vape 3 0x1a
+mali_set_vape 4 0x1b
+
+mali_set_vape 6 0x1d
+mali_set_vape 7 0x1f
+mali_set_vape 8 0x21
+
+mali_set_vape 10 0x25
+mali_set_vape 11 0x27
+mali_set_vape 12 0x29
+mali_set_vape 13 0x2b
+mali_set_vape 14 0x2e
+
+#undervolt ape 50 voltage (it's 1V 0x18 by default)
+#mali_set_param gpu_vape_50_opp 0x15
+
+##### configure boost
+
+# 200MHz is normally more than enough for the UI
+mali_set_param boost_low idx=0
+# return to no-boost mode only if we are really idle
+# this should happen when we exit gpu intensive app (i.e a game)
+
+mali_set_param boost_low threshold=30
+
+# my boost mode is original normal (400MHz) mode :) no need for more
+mali_set_param boost_high idx=5
+#mali_set_param boost_high idx=9
+
+# I want boost mode only for stuff that really needs it
+mali_set_param boost_delay 2000
+mali_set_param boost_high threshold=220
+
+##### configure switching between 50%/100% clock
+# something like UI mode boost for me ;)
+
+# From drivers/gpu/mali/mali400ko/driver/src/devicedrv/mali/platform/ux500/mali_platform.c
+#
+# Rationale behind the values for:                                                                                                                                                                                                                                     
+# MALI_HIGH_LEVEL_UTILIZATION_LIMIT and MALI_LOW_LEVEL_UTILIZATION_LIMIT                                                                                                                                                                                                
+# When operating at half clock frequency a faster clock is requested when                                                                                                                                                                                               
+# reaching 75% utilization. When operating at full clock frequency a slower                                                                                                                                                                                             
+# clock is requested when reaching 25% utilization. There is a margin of 25%                                                                                                                                                                                            
+# at the high range of the slow clock to avoid complete saturation of the                                                                                                                                                                                               
+# hardware and there is some overlap to avoid an oscillating situation where                                                                                                                                                                                            
+# the clock goes back and forth from high to low.                                                                                                                                                                                                                       
+#                                                                                                                                                                                                                                                                       
+# Utilization on full speed clock                                                                                                                                                                                                                                       
+# 0               64             128             192              255                                                                                                                                                                                                   
+# |---------------|---------------|---------------|---------------|                                                                                                                                                                                                     
+#                 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                                                                                                                                                                      
+#                 |       ^                                                                                                                                                                                                                                             
+#                 V       |                                                                                                                                                                                                                                             
+# XXXXXXXXXXXXXXXXXXXXXXXXX                                                                                                                                                                                                                                             
+# 0       64     128     192      255                                                                                                                                                                                                                                   
+# |-------|-------|-------|-------|                                                                                                                                                                                                                                     
+# Utilization on half speed clock                                                                                                                                                                                                                                       
+#                                                                                                                                                                                                                                                                      
+
+# since the base clock is set to 200MHz from original 400MHz,
+# use more aggresive APE_OPP boosting
+
+#orig: 1000
+mali_set_module_param mali_utilization_sampling_rate 500
+#orig: 64
+#mali_set_module_param mali_utilization_high_to_low 32
+#orig: 192
+#mali_set_module_param mali_utilization_low_to_high 128

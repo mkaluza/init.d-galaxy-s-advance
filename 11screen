@@ -1,0 +1,51 @@
+#!/system/bin/sh
+
+set -x
+
+tab=/sys/kernel/s6e63m0/panel/illumination_table
+
+for i in `seq 0 7`; do
+	echo $i $((i*10+5)) > $tab
+done
+
+for i in `seq 8 24`; do
+	echo $i $((i*12)) > $tab
+done
+for i in `seq 24 -1 8`; do
+	echo $i $((i*12)) > $tab
+done
+
+echo 0 4 > /sys/kernel/s6e63m0/panel/illumination_table
+echo 25 300 > /sys/kernel/s6e63m0/panel/illumination_table
+
+exit 0
+
+Illumination table:
+Current: [00] 010
+
+[00]		010
+[01]		025
+[02]		040
+[03]		060
+[04]		070
+[05]		080
+[06]		090
+[07]		100
+[08]		105
+[09]		110
+[10]		120
+[11]		130
+[12]		140
+[13]		150
+[14]		160
+[15]		170
+[16]		173
+[17]		180
+[18]		193
+[19]		198
+[20]		203
+[21]		213
+[22]		223
+[23]		240
+[24]		270
+[25]		300

@@ -1,0 +1,58 @@
+#!/system/bin/sh
+
+default_vbbx=0x11
+
+echo "Setting voltages"
+cd /sys/kernel/liveopp
+for f in 100 200 300 400 500 600 700 800 900 1000 1050 1100 1150 1200 1250; do
+	fname=`grep -l -e ":[^0-9]*${f}000 kHz" arm_step* || echo /dev/null`
+	eval f${f}=$fname
+	echo set_volt=1 > $fname
+	echo vbbx=$default_vbbx > $fname
+done
+
+source /data/boot.d/functions
+
+set_liveopp 800 apeopp 50
+set_liveopp 900 apeopp 50
+set_liveopp 1000 apeopp 50
+
+set_liveopp 400 ddropp 50
+set_liveopp 500 ddropp 50
+
+#crash at 0x05 / 0x0B,0x0A (stability test/busyloop)
+set_varm 100 0x12
+#FIXME with voltages for 100,200,300 being equal there's no point in using 100MHz...
+
+#crash at 0x05 / 0x08
+set_varm 200 0x12
+
+#crash at 0x0a / 0x0A
+set_varm 300 0x12
+
+#crash at 0x0f / 0x0E
+set_varm 400 0x13
+
+#crash at 0x0f / 0x13
+set_varm 500 0x15
+
+#crash at 0x0f/ 0x18
+set_varm 600 0x1A
+
+#crash at 0x14 / 0x1D
+set_varm 700 0x20
+
+#crash at 0x19 (idle), 0x1a (load) / 0x22
+set_varm 800 0x25
+
+#crash at 0x1E / 0x28
+set_varm 900 0x2A
+
+#crash at 0x24
+set_varm 1000 0x2F
+
+echo varm=0x32 > $f1050
+echo varm=0x32 > $f1100
+echo varm=0x32 > $f1150
+echo varm=0x32 > $f1200
+echo varm=0x32 > $f1250
