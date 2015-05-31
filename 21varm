@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-default_vbbx=0x11
+echo 1200000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 
 echo "Setting voltages"
 cd /sys/kernel/liveopp
@@ -8,52 +8,60 @@ for f in 100 200 300 400 500 600 700 800 900 1000 1050 1100 1150 1200 1250; do
 	fname=`grep -l -e ":[^0-9]*${f}000 kHz" arm_step* || echo /dev/null`
 	eval f${f}=$fname
 	echo set_volt=1 > $fname
-	echo vbbx=$default_vbbx > $fname
 done
 
 source /data/boot.d/functions
 
-set_liveopp 800 apeopp 50
-set_liveopp 900 apeopp 50
-set_liveopp 1000 apeopp 50
-
-set_liveopp 400 ddropp 50
-set_liveopp 500 ddropp 50
-
-#crash at 0x05 / 0x0B,0x0A (stability test/busyloop)
-set_varm 100 0x12
-#FIXME with voltages for 100,200,300 being equal there's no point in using 100MHz...
-echo 200000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-
-#crash at 0x05 / 0x08
-set_varm 200 0x12
-
-#crash at 0x0a / 0x0A
-set_varm 300 0x12
-
-#crash at 0x0f / 0x0E
-set_varm 400 0x13
-
-#crash at 0x0f / 0x13
+# crash at 0xA(busy loop)
+set_varm 100 0xc
+# crash at 0x0a
+set_varm 200 0x0d
+set_varm 300 0x11
+# instant crash at 0x0e, 0x0f stable for 180s
+set_varm 400 0x12
+# crash at 0x13
 set_varm 500 0x16
+# crsh at0x18, 0x19 unstable
+set_varm 600 0x1b
+# crash at 0x1c
+set_varm 700 0x1f
+#0x24
+set_varm 800 0x26
+#0x25
+set_varm 900 0x2B
+#0x2d unstable, 0x2e stable for 180s
+set_varm 1000 0x2f
+# Vbbx=0xdb, 0x26 unstable
+# Vbbx=0x00, 0x2E unstable
+set_vbbx 1050 0x00
+set_varm 1050 0x30
+# Vbbx=0xf9, 0x2F unstable
+set_vbbx 1100 0xf9
+set_varm 1100 0x31
+# Vbbx=0xe8, 0x32 unstable XXX bad Vbbx (-200, 0)
+# Vbbx=0xdb, 0x2C unstable
+# Vbbx=0xea, 0x2F unstable
+set_vbbx 1150 0xea
+set_varm 1150 0x31
+# Vbbx=0x8f, 0x2B unstable, Pa=1311mW
+# Vbbx=0xdb, 0x2F unstable, Pa=1256mW
+set_vbbx 1200 0xdb
+set_varm 1200 0x31
+# Vbbx=0xcc, 0x2C unstable
+# Vbbx=0xdb,  unstable
+set_vbbx 1250 0xcc
+set_varm 1250 0x31
 
-#crash at 0x0f/ 0x18
-set_varm 600 0x1A
+# Vbbx
+# 0x44 = (400, -400)
+# 0x33 = (300, -300)
+# 0x22 = (200, -200)
+# 0x11 = (100, -100)
+# 0x00 = (0, 0)
+# 0xf9 = (-100, 100)
+# 0xea = (-200, 200)
+# 0xdb = (-300, 300)
+# 0xcc = (-400, 400)
+# 0x8f = (-400, 400) or (-800, 700)? best oc/uv
 
-#crash at 0x14 / 0x1D
-set_varm 700 0x20
-
-#crash at 0x19 (idle), 0x1a (load) / 0x22
-set_varm 800 0x25
-
-#crash at 0x1E / 0x28
-set_varm 900 0x2A
-
-#crash at 0x24
-set_varm 1000 0x30
-
-echo varm=0x32 > $f1050
-echo varm=0x32 > $f1100
-echo varm=0x32 > $f1150
-echo varm=0x32 > $f1200
-echo varm=0x32 > $f1250
+# 0xe8 = (-200, 0)
