@@ -1,11 +1,11 @@
 #!/system/bin/sh
 
 set -x
-TS=`date +"%Y%-m%-d_%H.%M.%S"`
+TS=`date +"%Y-%m-%d_%H.%M.%S"`
 dir=/data/local/log/last_kmsg
 mkdir -p $dir
 cat /proc/last_kmsg > $dir/${TS}
 (
 find $dir -mtime +30 -delete
-find $dir -mtime +1 | xargs -n 1 gzip -9
+find $dir -mtime +1 | grep -v gz | xargs -n 1 gzip -9
 )&
