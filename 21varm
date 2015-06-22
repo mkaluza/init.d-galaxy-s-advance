@@ -1,10 +1,11 @@
 #!/system/bin/sh
 
 echo 1200000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+echo 100000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
 echo "Setting voltages"
 cd /sys/kernel/liveopp
-for f in 100 200 300 400 500 600 700 800 900 1000 1050 1100 1150 1200 1250; do
+for f in 100 200 300 400 500 600 700 800 900 1000 1050 1100 1150 1200 1250 1300 1350 1400 1450; do
 	fname=`grep -l -e ":[^0-9]*${f}000 kHz" arm_step* || echo /dev/null`
 	eval f${f}=$fname
 	echo set_volt=1 > $fname
@@ -49,9 +50,20 @@ set_varm 1150 0x31
 set_vbbx 1200 0xdb
 set_varm 1200 0x32
 # Vbbx=0xcc, 0x2C unstable
-# Vbbx=0xdb,  unstable
-set_vbbx 1250 0xcc
-set_varm 1250 0x31
+# Vbbx=0xdb, 0x32 unstable
+set_vbbx 1250 0xdb
+set_varm 1250 0x34
+#set_vbbx 1250 0xcc
+#set_varm 1250 0x2E
+# Vbbx=0xdb, 0x36 crash (450mA)
+# Vbbx=0xcc, 0x32 crash (430mA)
+set_vbbx 1300 0xcc
+set_varm 1300 0x34
+
+#Vbbx=0x8f, 0x34 crash (500mA)
+#Vbbx=0xcc, 0x35 crash (475mA), 0x36 unstable?
+set_vbbx 1350 0xcc
+set_varm 1350 0x38
 
 # Vbbx
 # 0x44 = (400, -400)
